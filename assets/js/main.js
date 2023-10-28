@@ -1,6 +1,9 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
-const playlist = $(".playlist");
+
+const PLAYER_STORAGE_KEY = "Music_Player";
+
+const playList = $(".playlist");
 const cd = $(".cd");
 
 const heading = $("header h2");
@@ -20,6 +23,7 @@ const app = {
     isPlaying: false,
     isRandom: false,
     isRepeat: false,
+    config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
     songs: [
         {
             name: "Vở Kịch Của Em (Remix)",
@@ -96,10 +100,16 @@ const app = {
             linkImg: "./assets/img/anh/1200x630bb.jpg",
         },
     ],
+    setConfig: function (key, value) {
+        this.config[key] = value;
+        localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(this.config));
+    },
     render: function () {
         const htmls = this.songs.map((song, index) => {
             return `
-          <div class="song ${index === this.currentIndex ? "active" : ""}">
+          <div class="song ${
+              index === this.currentIndex ? "active" : ""
+          }" data-index = "${index}">
       <div class="thumb"
       style="background-image: url('${song.linkImg}');">
       </div>
@@ -113,7 +123,7 @@ const app = {
     </div>
           `;
         });
-        $(".playlist").innerHTML = htmls.join("");
+        playList.innerHTML = htmls.join("");
     },
     defineProperties: function () {
         Object.defineProperty(this, "currentSong", {
@@ -193,7 +203,6 @@ const app = {
                 audio.play();
                 _this.render();
                 _this.scrollActiveSong();
-
             };
             //  Khi prev bài hát
             prevBtn.onclick = function () {
@@ -209,6 +218,7 @@ const app = {
             //  Khi click random
             random.onclick = function (e) {
                 _this.isRandom = !_this.isRandom;
+                _this.setConfig("isRandom", _this.isRandom);
                 random.classList.toggle("active", _this.isRandom);
             };
 
@@ -223,11 +233,32 @@ const app = {
             // Xử lí repeat bài hát
             repeat.onclick = function () {
                 _this.isRepeat = !_this.isRepeat;
+                _this.setConfig("isRepeat", _this.isRepeat);
+
                 repeat.classList.toggle("active", _this.isRepeat);
+            };
+            // Lắng nghe click vào playList (danh sách nhạc )
+            playList.onclick = function (e) {
+                const songNode = e.target.closest(".song:not(.active)");
+                if (
+                    e.target.closest(".song:not(.active)") ||
+                    e.target.closest("option")
+                ) {
+                    if (e.target.closest(".song:not(.active)")) {
+                        _this.currentIndex = Number(songNode.dataset.index);
+                        _this.loadCurrentSong();
+                        audio.play();
+                        _this.render();
+                        // lỗi khi chưa tác động tơi trang sẽ không thực hiện các click
+                    }
+                    if (e.target.closest("option")) {
+                        console.log("Can not execute!");
+                    }
+                }
             };
         };
     },
-    // lỗi hiển thị action song ở trên khi cuộn xuống dưới 
+    // lỗi hiển thị action song ở trên khi cuộn xuống dưới
     scrollActiveSong: function () {
         setTimeout(() => {
             $(".song.active").scrollIntoView({
@@ -241,6 +272,11 @@ const app = {
         cdThumb.style.backgroundImage = `url('${this.currentSong.linkImg}')`;
         audio.src = this.currentSong.linkMusic;
         // console.log(heading, cdThumb, audio);
+    },
+    loadConfig: function () {
+      this.isRandom = this.config.isRandom;
+      this.isRepeat = this.config.isRepeat;
+
     },
     nextSong: function () {
         this.currentIndex++;
@@ -266,6 +302,7 @@ const app = {
     },
     playRepeat: function () {},
     start: function () {
+      this.loadConfig();
         // định nghĩa thuộc tính cho obj
         this.defineProperties();
         // lắng nghe và xử lí các sự kkienej (DOM Event)
@@ -277,6 +314,9 @@ const app = {
 
         // Render lại danh sách bài hát
         this.render();
+
+        random.classList.toggle("active", this.isRandom);
+        repeat.classList.toggle("active", this.isRepeat);
     },
 };
 app.start();
