@@ -242,18 +242,21 @@ const app = {
                 const songNode = e.target.closest(".song:not(.active)");
                 if (
                     e.target.closest(".song:not(.active)") ||
-                    e.target.closest("option")
+                    e.target.closest(".option")
                 ) {
+                 
                     if (e.target.closest(".song:not(.active)")) {
+                      if (e.target.closest(".option")) {
+                        alert("OPPS! Tính năng đang phát triển :))");
+                    }else{
                         _this.currentIndex = Number(songNode.dataset.index);
                         _this.loadCurrentSong();
                         audio.play();
                         _this.render();
+                    }
                         // lỗi khi chưa tác động tơi trang sẽ không thực hiện các click
                     }
-                    if (e.target.closest("option")) {
-                        console.log("Can not execute!");
-                    }
+                   
                 }
             };
         };
