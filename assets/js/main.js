@@ -192,6 +192,8 @@ const app = {
                 }
                 audio.play();
                 _this.render();
+                _this.scrollActiveSong();
+
             };
             //  Khi prev bài hát
             prevBtn.onclick = function () {
@@ -202,6 +204,7 @@ const app = {
                 }
                 audio.play();
                 _this.render();
+                _this.scrollActiveSong();
             };
             //  Khi click random
             random.onclick = function (e) {
@@ -223,6 +226,15 @@ const app = {
                 repeat.classList.toggle("active", _this.isRepeat);
             };
         };
+    },
+    // lỗi hiển thị action song ở trên khi cuộn xuống dưới 
+    scrollActiveSong: function () {
+        setTimeout(() => {
+            $(".song.active").scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+            });
+        }, 300);
     },
     loadCurrentSong: function () {
         heading.textContent = this.currentSong.name;
