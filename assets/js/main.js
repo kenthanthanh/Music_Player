@@ -13,11 +13,13 @@ const progress = $('#progress');
 const nextBtn = $('.btn-next');
 const prevBtn = $('.btn-prev');
 const random = $('.btn-random');
+const repeat = $('.btn-repeat');
 
 const app = {
   currentIndex: 0,
   isPlaying: false,
   isRandom: false,
+  isRepeat: false,
   songs: [
     {
       name: "Vở Kịch Của Em (Remix)",
@@ -196,6 +198,21 @@ const app = {
         random.classList.toggle('active', _this.isRandom);
       }
 
+      // Xử lí next song khi audio ended 
+      audio.onended = function()
+      {
+        if(_this.isRepeat){
+audio.play();
+        }else{
+          nextBtn.click();
+        }
+      }
+      // Xử lí repeat bài hát 
+      repeat.onclick = function()
+      {
+        _this.isRepeat = !_this.isRepeat;
+        repeat.classList.toggle('active', _this.isRepeat);
+      }
 
 
     }
@@ -232,6 +249,10 @@ const app = {
     while (newIndex === this.currentIndex);
     this.currentIndex = newIndex;
     this.loadCurrentSong();
+
+  },
+  playRepeat:function()
+  {
 
   },
   start: function () {
